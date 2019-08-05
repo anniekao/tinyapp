@@ -8,10 +8,10 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 app.set("view engine", "ejs");
 
-const generateRandomString = (length) => {
+const generateRandomString = () => {
   const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
   let result = '';
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < 6; i++) {
     result += ALPHA[Math.floor(Math.random() * ALPHA.length)];
   }
   return result;
@@ -45,8 +45,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("OK");
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.listen(PORT, () => {
