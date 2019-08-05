@@ -8,6 +8,14 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 app.set("view engine", "ejs");
 
+const generateRandomString = (length) => {
+  const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  }
+  return result;
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouse.ca",
