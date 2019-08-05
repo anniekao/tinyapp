@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const PORT = 7000; // defaul port is usually 8080
 
+app.set("view engine", "ejs");
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouse.ca",
   "9sm5xK": "http:www.google.com"
