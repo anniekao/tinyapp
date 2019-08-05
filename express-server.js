@@ -39,9 +39,25 @@ app.get("/urls/new", (req, res) => {
   res.render("pages/urls_new");
 });
 
+app.get("/urls/err", (req, res) => {
+  res.render("pages/urls_err.ejs");
+});
+
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.render('pages/urls_show', templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+    let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+    res.render('pages/urls_show', templateVars);
+  } else {
+    res.redirect('/urls/urls_err');
+  }
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  if (!longURL) {
+    res.redirect('/urls/urls_err');
+  }
+  res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
