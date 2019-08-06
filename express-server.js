@@ -31,7 +31,7 @@ const urlDatabase = {
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies['username']
+    username: req.cookies["username"]
   };
   res.render("pages/urls_index", templateVars);
 });
@@ -73,7 +73,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('name', req.body.username);
+  res.cookie('username', req.body.username);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
   res.redirect("/urls");
 });
 
