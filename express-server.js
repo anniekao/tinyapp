@@ -21,7 +21,7 @@ const generateRandomString = () => {
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouse.ca",
-  "9sm5xK": "http:www.google.com"
+  "9sm5xK": "http://www.google.com"
 };
 
 // app.get('/', (req,res) => {
@@ -82,6 +82,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
 
+<<<<<<< HEAD
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect("/urls");
@@ -90,6 +91,11 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
   res.redirect("/urls");
+=======
+app.post("/urls/:shortURL/update", (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.longURL;
+  res.redirect('/urls');
+>>>>>>> 1ec9be25bee2f0db9368f1c80faeb65d305e7a6c
 });
 
 app.listen(PORT, () => {
