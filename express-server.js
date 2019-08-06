@@ -20,8 +20,8 @@ const generateRandomString = () => {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouse.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouse.ca", userID: 0 },
+  "9sm5xK": { longURL: "http://www.google.com", userID: 1 }
 };
 
 const findEmail = (email) => {
@@ -33,6 +33,14 @@ const findEmail = (email) => {
   return false;
 };
 
+const urlsForUser = (id) => {
+  let result = [];
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      result.push(urlDatabase[url].longURL);
+    }
+  }
+};
 
 const users = {};
 
@@ -62,19 +70,19 @@ app.get("/urls/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     let templateVars = {
       shortURL: req.params.shortURL,
-      longURL: urlDatabase[req.params.shortURL],
+      longURL: urlDatabase[req.params.shortURL].longURL,
       user: users[req.cookies["user_id"]]
     };
     res.render('pages/urls_show', templateVars);
   } else {
-    res.redirect('pages/urls_err');
+    res.redirect('urls/urls_err');
   }
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   if (!longURL) {
-    res.redirect('pages/urls_err');
+    res.redirect('urls/urls_err');
   }
   res.redirect(longURL);
 });
@@ -96,7 +104,8 @@ app.get("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {longURL: req.body.longURL, userID: req.cookies.user_id};
+  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
