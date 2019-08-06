@@ -24,74 +24,51 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const findEmail = (email) => {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return users[user];
-    }
-  }
-  return false;
-};
-
-
-const users = {};
+// app.get('/', (req,res) => {
+//   res.send('Hello!');
+// });
 
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    user: users[req.cookies["user_id"]]
+    username: req.cookies["username"]
   };
   res.render("pages/urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    user: users[req.cookies["user_id"]]
+    username: req.cookies["username"]
   };
   res.render("pages/urls_new", templateVars);
 });
 
 app.get("/urls/err", (req, res) => {
   let templateVars = {
-    user: users[req.cookies["user_id"]]
+    username: req.cookies["username"]
   };
   res.render("pages/urls_err.ejs", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
-    let templateVars = {
+    let templateVars = { 
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL],
-      user: users[req.cookies["user_id"]]
+      username: req.cookies["username"]
     };
     res.render('pages/urls_show', templateVars);
   } else {
-    res.redirect('pages/urls_err');
+    res.redirect('/urls/urls_err');
   }
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   if (!longURL) {
-    res.redirect('pages/urls_err');
+    res.redirect('/urls/urls_err');
   }
   res.redirect(longURL);
-});
-
-app.get("/register", (req, res) => {
-  let templateVars = {
-    user: users[req.cookies["user_id"]]
-  };
-  res.render('pages/urls_registration', templateVars);
-});
-
-app.get("/login", (req, res) => {
-  let templateVars = {
-    user: users[req.cookies.user_id]
-  };
-
-  res.render('pages/login', templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -105,47 +82,23 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
 
+<<<<<<< HEAD
 app.post("/login", (req, res) => {
-  const user = findEmail(req.body.email);
-
-  if (req.body.email === "" || req.body.password === "") {
-    res.status(400).send("Please fill out the email and/or password fields");
-  } else if (findEmail(req.body.email) === false) {
-    res.status(400).send("Sorry you're not registered");
-  } else if (user.password !== req.body.password) {
-    res.status(400).send("Wrong password!");
-  }
-
-  res.cookie("user_id", user.user_id);
+  res.cookie('username', req.body.username);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('name');
-  res.clearCookie('user_id');
+  res.clearCookie('username');
   res.redirect("/urls");
-});
-
+=======
 app.post("/urls/:shortURL/update", (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect('/urls');
-});
-
-app.post("/register", (req, res) => {
-  let len = Object.keys(users).length;
-  if (findEmail(req.body.email) !== false) {
-    res.status(400).send("You've already registered");
-  }
-
-  users[len] = {};
-  users[len]["user_id"] = len;
-  users[len]["email"] = req.body.email;
-  users[len]["password"] = req.body.password;
-
-  res.cookie("user_id", len);
-  res.redirect('/urls');
+>>>>>>> 1ec9be25bee2f0db9368f1c80faeb65d305e7a6c
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
+
