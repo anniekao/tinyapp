@@ -3,8 +3,10 @@ const app = express();
 const PORT = 8000; // defaul port is usually 8080
 
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.urlencoded({extended:true}));
+app.use((cookieParser()));
 
 app.set("view engine", "ejs");
 
@@ -22,16 +24,15 @@ const urlDatabase = {
   "9sm5xK": "http:www.google.com"
 };
 
-app.get('/', (req,res) => {
-  res.send('Hello!');
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
+// app.get('/', (req,res) => {
+//   res.send('Hello!');
+// });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = {
+    urls: urlDatabase,
+    username: req.cookies['username']
+  };
   res.render("pages/urls_index", templateVars);
 });
 
@@ -69,6 +70,11 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
+});
+
+app.post("/login", (req, res) => {
+  res.cookie('name', req.body.username);
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
