@@ -20,11 +20,7 @@ const generateRandomString = () => {
   return result;
 };
 
-const urlDatabase = {
-  b2xVn2: { longURL: "http://www.lighthouse.ca", userID: 0 },
-  "9sm5xK": { longURL: "http://www.google.com", userID: 1 },
-  "Zsm3xK": { longURL: "http://www.google.com", userID: 1 }
-};
+const urlDatabase = {};
 
 const findEmail = (email) => {
   for (let user in users) {
@@ -170,19 +166,19 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let len = Object.keys(users).length;
+  let id = generateRandomString();
   if (findEmail(req.body.email) !== false) {
     res.status(400).send("You've already registered");
   } else if (req.body.email === undefined || req.body.password === undefined) {
     res.status(400).send("Please fill out the password/email fields");
   }
 
-  users[len] = {};
-  users[len]["user_id"] = len;
-  users[len]["email"] = req.body.email;
-  users[len]["password"] = bcrypt.hashSync(req.body.password, 10);
+  users[id] = {};
+  users[id]["user_id"] = id;
+  users[id]["email"] = req.body.email;
+  users[id]["password"] = bcrypt.hashSync(req.body.password, 10);
 
-  res.cookie("user_id", len);
+  res.cookie("user_id", id);
   res.redirect('/urls');
 });
 
