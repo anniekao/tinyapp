@@ -1,12 +1,18 @@
+// express setup
 const express = require('express');
 const app = express();
 const PORT = 8000; // defaul port is usually 8080
 
+// dependencies
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const Keygrip = require('keygrip');
+
+// imported modules
 const { getUserByEmail } = require('./helpers.js');
+const usersDatabase = require('./databases/usersDatabase');
+const urlsDatabase = require('./databases/urlsDatabase');
 
 const gripKeys = new Keygrip(["MUMBAI528", "LIGHT029"], "sha256", "hex");
 
@@ -26,16 +32,13 @@ const generateRandomString = () => {
 
 const urlsForUser = (id) => {
   const result = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      result[url] = urlDatabase[url];
+  for (let url in urlsDatabase) {
+    if (urlsDatabase[url].userID === id) {
+      result[url] = urlsDatabase[url];
     }
   }
   return result;
 };
-
-const usersDatabase = {};
-const urlDatabase = {};
 
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
@@ -73,14 +76,14 @@ app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const urls = urlsForUser(userId);
   if (userId) {
-    if (urlDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
+    if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
       let templateVars = {
         shortURL: req.params.shortURL,
-        longURL: urlDatabase[req.params.shortURL].longURL,
+        longURL: urlsDatabase[req.params.shortURL].longURL,
         user: usersDatabase[req.session.user_id]
       };
       res.render("pages/urls_show", templateVars);
-    } else if (urlDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
+    } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
       res.status(400).send("Sorry. This TinyURL doen't belong to you");
     }
   } else {
@@ -88,13 +91,12 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-
-  if (!longURL) {
-    res.redirect('urls/urls_err');
-  } else {
+app.get("/u/:id", (req, res) => {
+  const longURL = urlsDatabase[req.params.id].longURL;
+  if (longURL) {
     res.redirect(longURL);
+  } else {
+    res.redirect("urls/urls_err");
   }
 });
 
@@ -115,7 +117,7 @@ app.get("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = {longURL: req.body.longURL, userID: req.session.user_id};
+  urlsDatabase[shortURL] = {longURL: req.body.longURL, userID: req.session.user_id};
   res.redirect(303, `/urls/${shortURL}`);
 });
 
@@ -124,7 +126,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const urls = urlsForUser(userId);
 
   if (Object.keys(urls).includes(req.params.shortURL)) {
-    delete urlDatabase[req.params.shortURL];
+    delete urlsDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
     res.status(400).send("Sorry. This TinyURL doesn't belong to you.");
@@ -136,7 +138,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
   const urls = urlsForUser(userId);
 
   if (Object.keys(urls).includes(req.params.shortURL)) {
-    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+    urlsDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect("/urls");
   } else {
     res.status(400).send("Sorry. This TinyURL doesn't belong to you.");
@@ -146,9 +148,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 app.post("/login", (req, res) => {
   const user = getUserByEmail(usersDatabase, req.body.email);
 
-  if (req.body.email === "" || req.body.password === "") {
-    res.status(400).send("Please fill out the email and/or password fields");
-  } else if (getUserByEmail(usersDatabase, req.body.email) === undefined) {
+  if (getUserByEmail(usersDatabase, req.body.email) === undefined) {
     res.status(400).send("Sorry you're not registered");
   } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
     res.status(400).send("Wrong password!");
