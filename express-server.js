@@ -33,7 +33,6 @@ const findEmail = (email) => {
   return false;
 };
 
-
 const users = {};
 
 app.get("/urls", (req, res) => {
@@ -135,6 +134,8 @@ app.post("/register", (req, res) => {
   let len = Object.keys(users).length;
   if (findEmail(req.body.email) !== false) {
     res.status(400).send("You've already registered");
+  } else if (req.body.email === "" && req.body.password === "") {
+    res.status(400).send("Please fill out the password and/or email fields");
   }
 
   users[len] = {};
