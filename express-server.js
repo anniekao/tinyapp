@@ -4,6 +4,7 @@ const PORT = 8000; // defaul port is usually 8080
 
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use((cookieParser()));
@@ -144,7 +145,7 @@ app.post("/login", (req, res) => {
     res.status(400).send("Please fill out the email and/or password fields");
   } else if (findEmail(req.body.email) === false) {
     res.status(400).send("Sorry you're not registered");
-  } else if (user.password !== req.body.password) {
+  } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
     res.status(400).send("Wrong password!");
   }
 
@@ -179,7 +180,7 @@ app.post("/register", (req, res) => {
   users[len] = {};
   users[len]["user_id"] = len;
   users[len]["email"] = req.body.email;
-  users[len]["password"] = req.body.password;
+  users[len]["password"] = bcrypt.hashSync(req.body.password, 10);
 
   res.cookie("user_id", len);
   res.redirect('/urls');
