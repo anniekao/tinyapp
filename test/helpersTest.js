@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail, checkURL } = require('../helpers.js');
+const { getUserByEmail, checkURL, generateRandomString, urlsForUser } = require('../helpers.js');
 
 const testUsers = {
   userRandomID: {
@@ -12,6 +12,21 @@ const testUsers = {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
+  }
+};
+
+const testUrls = {
+  lksjflk: {
+    shortURL: "ldkjfjs",
+    userID: "user2RandomID"
+  },
+  kdksls: {
+    shortURL: "dkkslf",
+    userID: "userRandomID"
+  },
+  ldksjj: {
+    shortURL: "kfjslk",
+    userID: "user2RandomID"
   }
 };
 
@@ -59,5 +74,30 @@ describe("checkURL", () => {
   
   it('should return undefined if no url is passed as an argument', () => {
     assert.equal(checkURL(""), undefined);
+  });
+});
+
+describe("generateRandomString", () => {
+  it('should return a string', () => {
+    assert.equal(typeof generateRandomString(), 'string');
+  });
+
+  it('should have a length of 6', () => {
+    assert.equal(generateRandomString().length, 6);
+  });
+});
+
+describe("urlsForUser", () => {
+  it('should return an object', () => {
+    assert.equal(typeof urlsForUser(testUrls, 'user2RandomID'), 'object');
+  });
+
+  it('should return the correct number of corresponding objects', () => {
+    const keys = Object.keys(urlsForUser(testUrls, "user2RandomID"));
+    assert.equal(keys.length, 2);
+  });
+
+  it('should return an empty object if no userID is passed as an argument', () => {
+    assert.deepEqual(urlsForUser(testUrls), {});
   });
 });

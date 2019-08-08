@@ -1,8 +1,14 @@
-// const addHTTPPrefix = (url) => {
-//   const httpwww = /\/\/www\./g;
-//   const www =  
+const checkURL = (url) => {
+  let splitURL = url.split("//");
 
-// }
+  if (url === "") {
+    return undefined;
+  } else if (splitURL.length === 1) {
+    return "http://" + splitURL[0];
+  } else {
+    return url;
+  }
+};
 
 const getUserByEmail = (usersDb, email) => {
   for (let user in usersDb) {
@@ -34,4 +40,4 @@ const urlsForUser = (urlsDatabase, id) => {
 };
 
 
-module.exports = { getUserByEmail, generateRandomString, urlsForUser };
+module.exports = { getUserByEmail, generateRandomString, urlsForUser, checkURL };
