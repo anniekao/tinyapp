@@ -51,22 +51,26 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const urls = urlsForUser(urlsDatabase, userId);
+  console.log(Object.keys(urls).includes(req.params.shortURL));
   if (userId) {
     if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
       let templateVars = {
-        url: urlsDatabase[req.params.shortURL],
+        shortURL: req.params.shortURL,
+        longURL: urlsDatabase[req.params.shortURL].longURL,
         user: usersDatabase[req.session.user_id],
+        date: urlsDatabase[req.params.shortURL].date,
+        clicks: urlsDatabase[req.params.shortURL].clicks
       };
       res.render("pages/urls_show", templateVars);
     } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
       const user = usersDatabase[req.session.user_id];
       res.status(403);
       res.render("pages/urls_err", { user, title: "403: Forbidden" });
-    } else if (urlsDatabase[req.params.shortURL] === undefined) {
-      const user = usersDatabase[req.session.user_id];
-      res.status(404);
-      res.render("pages/urls_err", { user, title: "404: Not Found" });
     }
+  } else if (!userId && urlsDatabase[req.params.shortURL]) {
+    const user = usersDatabase[req.session.user_id];
+    res.status(403);
+    res.render("pages/urls_err", { user, title: "403: Forbidden" });
   } else {
     const user = usersDatabase[req.session.user_id];
     res.status(404);
@@ -118,7 +122,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const userId = req.session.user_id;
   const urls = urlsForUser(urlsDatabase, userId);
 
-  if (Object.keys(urls).includes(req.params.shortURL)) {
+  if (userId && Object.keys(urls).includes(req.params.shortURL)) {
     delete urlsDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
