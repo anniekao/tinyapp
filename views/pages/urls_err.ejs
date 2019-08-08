@@ -15,15 +15,15 @@
 
   <link rel="stylesheet" type="text/css" href="../../assets/css/style.css">
 
-  <title>New URL - TinyApp Example</title>
+  <title>TinyApp Error</title>
 </head>
 
 <body>
   <% include ../partials/_header %>
 
    <div class="jumbotron bg-light">
-     <h1 class="display-4" style="color: #ff3366; font-weight: bolder; font-family: 'Pacifico' , cursive;">Oops! Something went wrong</h1>
-     <h4 class="mt-4" style="font-family: 'Arapey', serif;">Go <a href="/logout">home</a> and try logging in or registering again</h4>
+     <h1 class="display-4" style="color: #ff3366; font-weight: bolder; font-family: 'Pacifico' , cursive;">Oops! <%= title%></h1>
+     <h4 class="mt-4" style="font-family: 'Arapey', serif;">Go <a href="/logout">home</a> and try logging in or registering</h4>
   </div>
 
   <!-- Bootstrap JS -->

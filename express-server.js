@@ -15,7 +15,6 @@ const { getUserByEmail, generateRandomString, urlsForUser, checkURL } = require(
 const usersDatabase = require('./databases/usersDatabase');
 const urlsDatabase = require('./databases/urlsDatabase');
 
-
 const gripKeys = new Keygrip(["MUMBAI528", "LIGHT029"], "sha256", "hex");
 
 app.use(bodyParser.urlencoded({extended:true}));
@@ -32,9 +31,10 @@ app.get("/urls", (req, res) => {
     };
     res.render("pages/urls_index", templateVars);
   } else if (!userId) {
-    res.redirect("/logout");
+    const user = usersDatabase[req.session.user_id];
+    res.status(403);
+    res.render("pages/urls_err", { user, title: "403: Forbidden" });
   }
-  
 });
 
 app.get("/urls/new", (req, res) => {
@@ -44,15 +44,8 @@ app.get("/urls/new", (req, res) => {
     };
     res.render("pages/urls_new", templateVars);
   } else {
-    res.redirect("/logout"); 
+    res.redirect("/logout");
   }
-});
-
-app.get("/urls/err", (req, res) => {
-  let templateVars = {
-    user: usersDatabase[req.session.user_id]
-  };
-  res.render("pages/urls_err", templateVars); // Whoops something went wrong. Try logging in or registering.
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -60,20 +53,24 @@ app.get("/urls/:shortURL", (req, res) => {
   const urls = urlsForUser(urlsDatabase, userId);
   if (userId) {
     if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
-      // pass one URL object to as vars
       let templateVars = {
-        shortURL: req.params.shortURL,
-        longURL: urlsDatabase[req.params.shortURL].longURL,
+        url: urlsDatabase[req.params.shortURL],
         user: usersDatabase[req.session.user_id],
-        date: urlsDatabase[req.params.shortURL].date,
-        clicks: urlsDatabase[req.params.shortURL].clicks
       };
       res.render("pages/urls_show", templateVars);
     } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
-      res.status(400).send("Sorry. This TinyURL doen't belong to you");
+      const user = usersDatabase[req.session.user_id];
+      res.status(403);
+      res.render("pages/urls_err", { user, title: "403: Forbidden" });
+    } else if (urlsDatabase[req.params.shortURL] === undefined) {
+      const user = usersDatabase[req.session.user_id];
+      res.status(404);
+      res.render("pages/urls_err", { user, title: "404: Not Found" });
     }
   } else {
-    res.redirect('/urls/err'); // Oops. You have to log in to access this tinyUrl
+    const user = usersDatabase[req.session.user_id];
+    res.status(404);
+    res.render("pages/urls_err", { user, title: "404: Not Found" });
   }
 });
 
@@ -85,7 +82,9 @@ app.get("/u/:id", (req, res) => {
     console.log('clicks', urlsDatabase[req.params.id].clicks);
     res.redirect(longURL);
   } else {
-    res.redirect("/urls/err");
+    const user = usersDatabase[req.session.user_id];
+    res.status(404);
+    res.render("pages/urls_err", { user, title: "404: Not Found" });
   }
 });
 
@@ -123,7 +122,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlsDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.redirect(400, "/login"); // Oops, you're not logged in
+    const user = usersDatabase[req.session.user_id];
+    res.status(403);
+    res.render("pages/urls_err", { user, title: "403: Forbidden" });
   }
 });
 
@@ -135,17 +136,19 @@ app.post("/urls/:shortURL/update", (req, res) => {
     urlsDatabase[req.params.shortURL].longURL = checkURL(req.body.longURL);
     res.redirect("/urls");
   } else {
-    res.redirect(400, "/login"); // Oops, you're not logged in
+    const user = usersDatabase[req.session.user_id];
+    res.status(403);
+    res.render("pages/urls_err", { user, title: "403: Forbidden" });
   }
 });
 
 app.post("/login", (req, res) => {
   const user = getUserByEmail(usersDatabase, req.body.email);
 
-  if (getUserByEmail(usersDatabase, req.body.email) === undefined) {
-    res.redirect("/urls/err");
-  } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
-    res.redirect("/urls/err");
+  if (getUserByEmail(usersDatabase, req.body.email) === undefined || bcrypt.compareSync(req.body.password, user.password) === false) {
+    const user = usersDatabase[req.session.user_id];
+    res.status(400);
+    res.render("pages/urls_err", { user, title: "400: Bad Request" });
   }
 
   req.session.user_id = user.user_id;
@@ -154,14 +157,16 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect(303, "/urls");
+  res.redirect("/logout");
 });
 
 app.post("/register", (req, res) => {
   let id = generateRandomString();
 
   if (getUserByEmail(usersDatabase, req.body.email)) {
-    res.redirect("urls/err"); // You're already registered. Please login to access your tinyUrls.
+    const user = usersDatabase[req.session.user_id];
+    res.status(400);
+    res.render("pages/urls_err", { user, title: "400: Bad Request" });
   }
 
   usersDatabase[id] = {};
