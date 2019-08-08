@@ -8,11 +8,13 @@ const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const Keygrip = require('keygrip');
+const moment = require('moment');
 
 // imported modules
-const { getUserByEmail } = require('./helpers.js');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
 const usersDatabase = require('./databases/usersDatabase');
 const urlsDatabase = require('./databases/urlsDatabase');
+
 
 const gripKeys = new Keygrip(["MUMBAI528", "LIGHT029"], "sha256", "hex");
 
@@ -21,30 +23,11 @@ app.use(cookieSession({keys: gripKeys}));
 
 app.set("view engine", "ejs");
 
-const generateRandomString = () => {
-  const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += ALPHA[Math.floor(Math.random() * ALPHA.length)];
-  }
-  return result;
-};
-
-const urlsForUser = (id) => {
-  const result = {};
-  for (let url in urlsDatabase) {
-    if (urlsDatabase[url].userID === id) {
-      result[url] = urlsDatabase[url];
-    }
-  }
-  return result;
-};
-
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   if (userId) {
     let templateVars = {
-      urls: urlsForUser(userId),
+      urls: urlsForUser(urlsDatabase, userId),
       user: usersDatabase[userId]
     };
     res.render("pages/urls_index", templateVars);
@@ -74,7 +57,7 @@ app.get("/urls/err", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
-  const urls = urlsForUser(userId);
+  const urls = urlsForUser(urlsDatabase, userId);
   if (userId) {
     if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
       let templateVars = {
@@ -112,18 +95,18 @@ app.get("/login", (req, res) => {
     user: usersDatabase[req.session.user_id]
   };
 
-  res.render('pages/login', templateVars);
+  res.render("pages/login", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlsDatabase[shortURL] = {longURL: req.body.longURL, userID: req.session.user_id};
+  urlsDatabase[shortURL] = {longURL: req.body.longURL, userID: req.session.user_id, date: moment().format('MMMM Do YYYY')};
   res.redirect(303, `/urls/${shortURL}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userId = req.session.user_id;
-  const urls = urlsForUser(userId);
+  const urls = urlsForUser(urlsDatabase, userId);
 
   if (Object.keys(urls).includes(req.params.shortURL)) {
     delete urlsDatabase[req.params.shortURL];
@@ -135,7 +118,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL/update", (req, res) => {
   const userId = req.session.user_id;
-  const urls = urlsForUser(userId);
+  const urls = urlsForUser(urlsDatabase, userId);
 
   if (Object.keys(urls).includes(req.params.shortURL)) {
     urlsDatabase[req.params.shortURL].longURL = req.body.longURL;
