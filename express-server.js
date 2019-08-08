@@ -32,7 +32,7 @@ app.get("/urls", (req, res) => {
     };
     res.render("pages/urls_index", templateVars);
   } else {
-    res.redirect("/login");
+    res.redirect("/logout");
   }
   
 });
@@ -44,15 +44,15 @@ app.get("/urls/new", (req, res) => {
     };
     res.render("pages/urls_new", templateVars);
   } else {
-    res.redirect("/login");
-  } 
+    res.redirect("/logout"); // Oops you're not logged in
+  }
 });
 
 app.get("/urls/err", (req, res) => {
   let templateVars = {
     user: usersDatabase[req.session.user_id]
   };
-  res.render("pages/urls_err", templateVars);
+  res.render("pages/urls_err", templateVars); // Whoops something went wrong. Try logging in or registering.
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -71,32 +71,40 @@ app.get("/urls/:shortURL", (req, res) => {
       res.status(400).send("Sorry. This TinyURL doen't belong to you");
     }
   } else {
-    res.redirect('/login');
+    res.redirect('/urls/err'); // Oops. You have to log in to access this tinyUrl
   }
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlsDatabase[req.params.id].longURL;
+  const longURL = urlsDatabase[req.params.id] === undefined ? undefined :  urlsDatabase[req.params.id].longURL;
+  
   if (longURL) {
     res.redirect(longURL);
   } else {
-    res.redirect("urls/urls_err");
+    res.redirect("/urls/err");
   }
 });
 
-app.get("/register", (req, res) => {
+// app.get("/register", (req, res) => {
+//   let templateVars = {
+//     user: usersDatabase[req.session.user_id]
+//   };
+//   res.render('pages/urls_registration', templateVars);
+// });
+
+// app.get("/login", (req, res) => {
+//   let templateVars = {
+//     user: usersDatabase[req.session.user_id]
+//   };
+
+//   res.render("pages/login", templateVars);
+// });
+
+app.get("/logout", (req,res) => {
   let templateVars = {
     user: usersDatabase[req.session.user_id]
   };
-  res.render('pages/urls_registration', templateVars);
-});
-
-app.get("/login", (req, res) => {
-  let templateVars = {
-    user: usersDatabase[req.session.user_id]
-  };
-
-  res.render("pages/login", templateVars);
+  res.render("pages/logout", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -116,7 +124,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlsDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.status(400).send("Sorry. This TinyURL doesn't belong to you.");
+    res.redirect(400, "/login"); // Oops, you're not logged in
   }
 });
 
@@ -128,7 +136,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
     urlsDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect("/urls");
   } else {
-    res.status(400).send("Sorry. This TinyURL doesn't belong to you.");
+    res.redirect(400, "/login"); // Oops, you're not logged in
   }
 });
 
@@ -147,13 +155,14 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/urls");
+  res.redirect(303, "/urls");
 });
 
 app.post("/register", (req, res) => {
   let id = generateRandomString();
+
   if (getUserByEmail(usersDatabase, req.body.email)) {
-    res.status(400).send("You've already registered");
+    res.redirect(404, "urls/err"); // You're already registered. Please login to access your tinyUrls.
   } else if (req.body.email === undefined || req.body.password === undefined) {
     res.status(400).send("Please fill out the password/email fields");
   }

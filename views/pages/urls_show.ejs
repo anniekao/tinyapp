@@ -9,6 +9,10 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
+  <!-- Google fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Arapey|Pacifico&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" href="../../assets/css/style.css">
    
   <title>URL - TinyApp</title>
 </head>
@@ -19,7 +23,8 @@
 <div class="card text-center">
     <h3 class="card-title mt-3">TinyURL for: <%= longURL %></h3>
   <div class="card-body">
-    <p class="card-text">Short URL: <a href="<%= longURL %>"><%= shortURL %></a></p>
+    <p class="card-text">Short URL: <a href=" <%= longURL %>"><%= shortURL %></a>
+    </p>
     <p class="card-text">Created on: <%= date %></p>
   </div>
   <div class="card-header" style="color: #9e9885">

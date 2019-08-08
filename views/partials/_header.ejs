@@ -1,24 +1,23 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <div class="header">
-       <a class="navbar-brand" href="/urls">TinyApp</a>
+    <% if (user) { %>
+      <a class="navbar-brand" href="/urls" style="font-family: 'Pacifico', cursive;">TinyApp</a>
+    <% } else { %>
+      <a class="navbar-brand" href="/logout" style="font-family: 'Pacifico', cursive;">TinyApp</a>
+    <% } %>
     </div>
    
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="nav navbar-nav mr-auto">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link" href="/urls" style="font-family: 'Arapey', serif; font-size:20px; color:white">My URLs</a>
+        <a class="nav-item nav-link" href="/urls/new" style="font-family: 'Arapey', serif; font-size:20px; color:white">Create New URL</a>
       </div>
       <div class ="nav navbar-nav">
-      <% if (!user) { %>
-        <div class ="nav navbar-nav">
-            <button type="button" class="btn btn-primary mr-3" data-toggle="modal" data-target="#loginModal">Login</button>
-            <button type="submit" class="btn btn-dark" data-toggle="modal" data-target="#registerModal">Register</button>
-          </form>
-        </div>
-      <% } else { %>
+      <% if (user) { %>
         <div class="nav navbar-nav">
-          <h5 class="mt-2 mr-3" style="color:#f6fff8;">Logged in as: <%= user.email %></h5>
+          <h5 class="mt-2 mr-3" style="font-family: 'Arapey', serif; font-size:20px; font-weight:bold; color:white">Logged in as:
+            <%= user.email %></h5>
           <form method="POST" action="/logout">
             <button type="submit" class="btn btn-primary">Logout</button>
           </form>
