@@ -12,7 +12,17 @@
   <!-- Google fonts -->
   <link href="https://fonts.googleapis.com/css?family=Arapey|Pacifico&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" type="text/css" href="../../assets/css/style.css">
+  <script>
+    const copyURL = () => {
+      const copyText = document.getElementById("myShortUrl");
+
+      copyText.select();
+      document.execCommand('copy');
+
+      alert("Copied the text: " + copyText.value);
+    }
+  
+  </script>
    
   <title>URL - TinyApp</title>
 </head>
@@ -23,16 +33,19 @@
 <div class="card text-center">
     <h3 class="card-title mt-3">TinyURL for: <%= longURL %></h3>
   <div class="card-body">
-    <p class="card-text">Short URL: <a href=" <%= longURL %>"><%= shortURL %></a>
+    <p class="card-text">
+      <input type="text" class="ml-3 mr-3" id="myShortUrl" value="localhost:8000/u/<%= shortURL %>">
+      <button class="btn btn-warning" onclick="copyURL()">Copy URL</button>
     </p>
-    <p class="card-text">Created on: <%= date %></p>
+    <p class="card-text"><span style="font-weight:bold;">Created on:</span> <%= date %></p>
+    <p class="card-text"><span style="font-weight:bold;">Number of non-unique clicks:</span> <%= clicks %></p>
   </div>
   <div class="card-header" style="color: #9e9885">
      <h2 class="card-title font-weight-bold">Edit</h2>
        <div class="card-body">
          <form method="POST" action="/urls/<%= shortURL %>/update">
            <label for=longURL>New URL:</label>
-           <input type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
+           <input type="text" name="longURL" placeholder="http://" required="" style="width: 300px; margin: 1em">
            <button type="submit" class="btn btn-primary">Edit</button>
          </form>
        </div>

@@ -11,7 +11,7 @@ const Keygrip = require('keygrip');
 const moment = require('moment');
 
 // imported modules
-const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
+const { getUserByEmail, generateRandomString, urlsForUser, checkURL } = require('./helpers');
 const usersDatabase = require('./databases/usersDatabase');
 const urlsDatabase = require('./databases/urlsDatabase');
 
@@ -31,7 +31,7 @@ app.get("/urls", (req, res) => {
       user: usersDatabase[userId]
     };
     res.render("pages/urls_index", templateVars);
-  } else {
+  } else if (!userId) {
     res.redirect("/logout");
   }
   
@@ -44,7 +44,7 @@ app.get("/urls/new", (req, res) => {
     };
     res.render("pages/urls_new", templateVars);
   } else {
-    res.redirect("/logout"); // Oops you're not logged in
+    res.redirect("/logout"); 
   }
 });
 
@@ -60,11 +60,13 @@ app.get("/urls/:shortURL", (req, res) => {
   const urls = urlsForUser(urlsDatabase, userId);
   if (userId) {
     if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
+      // pass one URL object to as vars
       let templateVars = {
         shortURL: req.params.shortURL,
         longURL: urlsDatabase[req.params.shortURL].longURL,
         user: usersDatabase[req.session.user_id],
-        date: urlsDatabase[req.params.shortURL].date
+        date: urlsDatabase[req.params.shortURL].date,
+        clicks: urlsDatabase[req.params.shortURL].clicks
       };
       res.render("pages/urls_show", templateVars);
     } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
@@ -79,26 +81,21 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlsDatabase[req.params.id] === undefined ? undefined :  urlsDatabase[req.params.id].longURL;
   
   if (longURL) {
+    urlsDatabase[req.params.id].clicks++;
+    console.log('clicks', urlsDatabase[req.params.id].clicks);
     res.redirect(longURL);
   } else {
     res.redirect("/urls/err");
   }
 });
 
-// app.get("/register", (req, res) => {
-//   let templateVars = {
-//     user: usersDatabase[req.session.user_id]
-//   };
-//   res.render('pages/urls_registration', templateVars);
-// });
+app.get("/register", (req, res) => {
+  res.redirect('/logout');
+});
 
-// app.get("/login", (req, res) => {
-//   let templateVars = {
-//     user: usersDatabase[req.session.user_id]
-//   };
-
-//   res.render("pages/login", templateVars);
-// });
+app.get("/login", (req, res) => {
+  res.redirect("/logout");
+});
 
 app.get("/logout", (req,res) => {
   let templateVars = {
@@ -110,9 +107,11 @@ app.get("/logout", (req,res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlsDatabase[shortURL] = {
-    longURL: req.body.longURL,
+    longURL: checkURL(req.body.longURL),
     userID: req.session.user_id,
-    date: moment().format('MMMM Do YYYY')};
+    date: moment().format('MMMM Do YYYY'),
+    clicks: 0
+  };
   res.redirect(303, `/urls/${shortURL}`);
 });
 
@@ -133,7 +132,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
   const urls = urlsForUser(urlsDatabase, userId);
 
   if (Object.keys(urls).includes(req.params.shortURL)) {
-    urlsDatabase[req.params.shortURL].longURL = req.body.longURL;
+    urlsDatabase[req.params.shortURL].longURL = checkURL(req.body.longURL);
     res.redirect("/urls");
   } else {
     res.redirect(400, "/login"); // Oops, you're not logged in
@@ -144,9 +143,9 @@ app.post("/login", (req, res) => {
   const user = getUserByEmail(usersDatabase, req.body.email);
 
   if (getUserByEmail(usersDatabase, req.body.email) === undefined) {
-    res.status(400).send("Sorry you're not registered");
+    res.redirect("/urls/err");
   } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
-    res.status(400).send("Wrong password!");
+    res.redirect("/urls/err");
   }
 
   req.session.user_id = user.user_id;
@@ -162,9 +161,7 @@ app.post("/register", (req, res) => {
   let id = generateRandomString();
 
   if (getUserByEmail(usersDatabase, req.body.email)) {
-    res.redirect(404, "urls/err"); // You're already registered. Please login to access your tinyUrls.
-  } else if (req.body.email === undefined || req.body.password === undefined) {
-    res.status(400).send("Please fill out the password/email fields");
+    res.redirect("urls/err"); // You're already registered. Please login to access your tinyUrls.
   }
 
   usersDatabase[id] = {};

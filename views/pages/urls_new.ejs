@@ -13,15 +13,13 @@
   <!-- Google fonts -->
   <link href="https://fonts.googleapis.com/css?family=Arapey|Pacifico&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" type="text/css" href="../../assets/css/style.css">
-
   <title>New URL - TinyApp Example</title>
 </head>
 
 <body>
   <% include ../partials/_header %>
 
-  <main class="mt-5">
+  <main class="jumbotron">
     <div class="row justify-content-center">
       <h3>Create TinyURL</h3>
     </div>
@@ -30,8 +28,7 @@
       <form class="form-inline" action="/urls" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">Enter a URL:</label>
-          <input class="form-control" type="text" name="longURL" placeholder="http://"
-            style="width: 300px; margin: 1em">
+          <input class="form-control" type="text" name="longURL" placeholder="http://" required="" style="width: 300px; margin: 1em">
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>

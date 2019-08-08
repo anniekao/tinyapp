@@ -16,10 +16,10 @@
       <div class ="nav navbar-nav">
       <% if (user) { %>
         <div class="nav navbar-nav">
-          <h5 class="mt-2 mr-3" style="font-family: 'Arapey', serif; font-size:20px; font-weight:bold; color:white">Logged in as:
+          <h5 class="mt-2 mr-3" style="font-family: 'Arapey' , serif; font-size:20px;color:white">Logged in as:
             <%= user.email %></h5>
           <form method="POST" action="/logout">
-            <button type="submit" class="btn btn-primary">Logout</button>
+            <button type="submit" class="btn btn-dark">Logout</button>
           </form>
         </div>
       <% } %>
