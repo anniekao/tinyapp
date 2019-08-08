@@ -63,7 +63,8 @@ app.get("/urls/:shortURL", (req, res) => {
       let templateVars = {
         shortURL: req.params.shortURL,
         longURL: urlsDatabase[req.params.shortURL].longURL,
-        user: usersDatabase[req.session.user_id]
+        user: usersDatabase[req.session.user_id],
+        date: urlsDatabase[req.params.shortURL].date
       };
       res.render("pages/urls_show", templateVars);
     } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
@@ -100,7 +101,10 @@ app.get("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlsDatabase[shortURL] = {longURL: req.body.longURL, userID: req.session.user_id, date: moment().format('MMMM Do YYYY')};
+  urlsDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: req.session.user_id,
+    date: moment().format('MMMM Do YYYY')};
   res.redirect(303, `/urls/${shortURL}`);
 });
 
