@@ -9,6 +9,7 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const Keygrip = require('keygrip');
 const moment = require('moment');
+const methodOverride = require("method-override");
 
 // imported modules
 const { getUserByEmail, generateRandomString, urlsForUser, checkURL } = require('./helpers');
@@ -19,6 +20,7 @@ const gripKeys = new Keygrip(["MUMBAI528", "LIGHT029"], "sha256", "hex");
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cookieSession({keys: gripKeys}));
+app.use(methodOverride("_method"));
 
 app.set("view engine", "ejs");
 
@@ -112,34 +114,6 @@ app.post("/urls", (req, res) => {
   res.redirect(303, `/urls/${shortURL}`);
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
-  const userId = req.session.userId;
-  const urls = urlsForUser(urlsDatabase, userId);
-
-  if (userId && Object.keys(urls).includes(req.params.shortURL)) {
-    delete urlsDatabase[req.params.shortURL];
-    res.redirect("/urls");
-  } else {
-    const user = usersDatabase[req.session.userId];
-    res.status(403);
-    res.render("pages/urls_err", { user, title: "403: Forbidden" });
-  }
-});
-
-app.post("/urls/:shortURL/update", (req, res) => {
-  const userId = req.session.userId;
-  const urls = urlsForUser(urlsDatabase, userId);
-
-  if (Object.keys(urls).includes(req.params.shortURL)) {
-    urlsDatabase[req.params.shortURL].longURL = checkURL(req.body.longURL);
-    res.redirect("/urls");
-  } else {
-    const user = usersDatabase[req.session.userId];
-    res.status(403);
-    res.render("pages/urls_err", { user, title: "403: Forbidden" });
-  }
-});
-
 app.post("/login", (req, res) => {
   const user = getUserByEmail(usersDatabase, req.body.email);
 
@@ -174,6 +148,34 @@ app.post("/register", (req, res) => {
 
   req.session.userId = id;
   res.redirect('/urls');
+});
+
+app.put("/urls/:shortURL/", (req, res) => {
+  const userId = req.session.userId;
+  const urls = urlsForUser(urlsDatabase, userId);
+
+  if (Object.keys(urls).includes(req.params.shortURL)) {
+    urlsDatabase[req.params.shortURL].longURL = checkURL(req.body.longURL);
+    res.redirect("/urls");
+  } else {
+    const user = usersDatabase[req.session.userId];
+    res.status(403);
+    res.render("pages/urls_err", { user, title: "403: Forbidden" });
+  }
+});
+
+app.delete("/urls/:shortURL/", (req, res) => {
+  const userId = req.session.userId;
+  const urls = urlsForUser(urlsDatabase, userId);
+
+  if (userId && Object.keys(urls).includes(req.params.shortURL)) {
+    delete urlsDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    const user = usersDatabase[req.session.userId];
+    res.status(403);
+    res.render("pages/urls_err", { user, title: "403: Forbidden" });
+  }
 });
 
 app.listen(PORT, () => {

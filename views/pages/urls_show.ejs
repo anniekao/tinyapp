@@ -43,7 +43,7 @@
   <div class="card-header" style="color: #9e9885">
      <h2 class="card-title font-weight-bold">Edit</h2>
        <div class="card-body">
-         <form method="POST" action="/urls/<%= shortURL %>/update">
+         <form method="POST" action="/urls/<%= shortURL %>/?_method=PUT">
            <label for=longURL>New URL:</label>
            <input type="text" name="longURL" placeholder="http://" required="" style="width: 300px; margin: 1em">
            <button type="submit" class="btn btn-primary">Edit</button>
