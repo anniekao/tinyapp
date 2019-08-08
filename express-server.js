@@ -22,6 +22,13 @@ app.use(cookieSession({keys: gripKeys}));
 
 app.set("view engine", "ejs");
 
+app.get("/", (req, res) => {
+  let templateVars = {
+    user: usersDatabase[req.session.user_id]
+  };
+  res.render("pages/logout", templateVars);
+});
+
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   if (userId) {
@@ -44,7 +51,7 @@ app.get("/urls/new", (req, res) => {
     };
     res.render("pages/urls_new", templateVars);
   } else {
-    res.redirect("/logout");
+    res.redirect("/");
   }
 });
 
@@ -93,18 +100,11 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.redirect('/logout');
+  res.redirect('/');
 });
 
 app.get("/login", (req, res) => {
-  res.redirect("/logout");
-});
-
-app.get("/logout", (req,res) => {
-  let templateVars = {
-    user: usersDatabase[req.session.user_id]
-  };
-  res.render("pages/logout", templateVars);
+  res.redirect("/");
 });
 
 app.post("/urls", (req, res) => {
@@ -161,7 +161,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/logout");
+  res.redirect("/");
 });
 
 app.post("/register", (req, res) => {
