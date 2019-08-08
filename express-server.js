@@ -24,13 +24,13 @@ app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   let templateVars = {
-    user: usersDatabase[req.session.user_id]
+    user: usersDatabase[req.session.userId]
   };
   res.render("pages/logout", templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   if (userId) {
     let templateVars = {
       urls: urlsForUser(urlsDatabase, userId),
@@ -38,16 +38,16 @@ app.get("/urls", (req, res) => {
     };
     res.render("pages/urls_index", templateVars);
   } else if (!userId) {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(403);
     res.render("pages/urls_err", { user, title: "403: Forbidden" });
   }
 });
 
 app.get("/urls/new", (req, res) => {
-  if (req.session.user_id) {
+  if (req.session.userId) {
     let templateVars = {
-      user: usersDatabase[req.session.user_id]
+      user: usersDatabase[req.session.userId]
     };
     res.render("pages/urls_new", templateVars);
   } else {
@@ -56,7 +56,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   const urls = urlsForUser(urlsDatabase, userId);
   console.log(Object.keys(urls).includes(req.params.shortURL));
   if (userId) {
@@ -64,22 +64,22 @@ app.get("/urls/:shortURL", (req, res) => {
       let templateVars = {
         shortURL: req.params.shortURL,
         longURL: urlsDatabase[req.params.shortURL].longURL,
-        user: usersDatabase[req.session.user_id],
+        user: usersDatabase[req.session.userId],
         date: urlsDatabase[req.params.shortURL].date,
         clicks: urlsDatabase[req.params.shortURL].clicks
       };
       res.render("pages/urls_show", templateVars);
     } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
-      const user = usersDatabase[req.session.user_id];
+      const user = usersDatabase[req.session.userId];
       res.status(403);
       res.render("pages/urls_err", { user, title: "403: Forbidden" });
     }
   } else if (!userId && urlsDatabase[req.params.shortURL]) {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(403);
     res.render("pages/urls_err", { user, title: "403: Forbidden" });
   } else {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(404);
     res.render("pages/urls_err", { user, title: "404: Not Found" });
   }
@@ -93,7 +93,7 @@ app.get("/u/:id", (req, res) => {
     console.log('clicks', urlsDatabase[req.params.id].clicks);
     res.redirect(longURL);
   } else {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(404);
     res.render("pages/urls_err", { user, title: "404: Not Found" });
   }
@@ -111,7 +111,7 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlsDatabase[shortURL] = {
     longURL: checkURL(req.body.longURL),
-    userID: req.session.user_id,
+    userID: req.session.userId,
     date: moment().format('MMMM Do YYYY'),
     clicks: 0
   };
@@ -119,28 +119,28 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   const urls = urlsForUser(urlsDatabase, userId);
 
   if (userId && Object.keys(urls).includes(req.params.shortURL)) {
     delete urlsDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(403);
     res.render("pages/urls_err", { user, title: "403: Forbidden" });
   }
 });
 
 app.post("/urls/:shortURL/update", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   const urls = urlsForUser(urlsDatabase, userId);
 
   if (Object.keys(urls).includes(req.params.shortURL)) {
     urlsDatabase[req.params.shortURL].longURL = checkURL(req.body.longURL);
     res.redirect("/urls");
   } else {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(403);
     res.render("pages/urls_err", { user, title: "403: Forbidden" });
   }
@@ -150,12 +150,12 @@ app.post("/login", (req, res) => {
   const user = getUserByEmail(usersDatabase, req.body.email);
 
   if (getUserByEmail(usersDatabase, req.body.email) === undefined || bcrypt.compareSync(req.body.password, user.password) === false) {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(400);
     res.render("pages/urls_err", { user, title: "400: Bad Request" });
   }
 
-  req.session.user_id = user.user_id;
+  req.session.userId = user.userId;
   res.redirect("/urls");
 });
 
@@ -168,17 +168,17 @@ app.post("/register", (req, res) => {
   let id = generateRandomString();
 
   if (getUserByEmail(usersDatabase, req.body.email)) {
-    const user = usersDatabase[req.session.user_id];
+    const user = usersDatabase[req.session.userId];
     res.status(400);
     res.render("pages/urls_err", { user, title: "400: Bad Request" });
   }
 
   usersDatabase[id] = {};
-  usersDatabase[id].user_id = id;
+  usersDatabase[id].userId = id;
   usersDatabase[id].email = req.body.email;
   usersDatabase[id].password = bcrypt.hashSync(req.body.password, 10);
 
-  req.session.user_id = id;
+  req.session.userId = id;
   res.redirect('/urls');
 });
 
