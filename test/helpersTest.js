@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail } = require('../helpers.js');
+const { getUserByEmail, checkURL } = require('../helpers.js');
 
 const testUsers = {
   userRandomID: {
@@ -40,5 +40,24 @@ describe('getUserByEmail', () => {
     const user = getUserByEmail(testUsers, 'joebob@hicksvilleUSA.com');
 
     assert.equal(user, undefined);
+  });
+});
+
+describe("checkURL", () => {
+  it('should return an URL beginning only with www with http:// appended to it', () => {
+    const url = "www.google.com";
+    const expectedOutput = "http://www.google.com";
+
+    assert.equal(checkURL(url), expectedOutput);
+  });
+
+  it('should return the original URL if it already begins with http://', () => {
+    const url = "http://www.google.com";
+    
+    assert.equal(checkURL(url), url);
+  });
+  
+  it('should return undefined if no url is passed as an argument', () => {
+    assert.equal(checkURL(""), undefined);
   });
 });
