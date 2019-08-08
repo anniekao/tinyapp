@@ -22,6 +22,13 @@ Run ```npm test``` to get the test suite started.
 * [keygrip](https://www.npmjs.com/package/keygrip) - Cookie verification
 * [moment](https://momentjs.com/) - Date display in JS
 
+## Final Product
+
+!["Screenshot of the front page"](https://github.com/anniekao/tinyapp/blob/master/screenshots/screenshot_main.png)
+!["Screenshot of register modal"](https://github.com/anniekao/tinyapp/blob/master/screenshots/screenshot_register.png)
+!["Screenshot of URLs page "](https://github.com/anniekao/tinyapp/blob/master/screenshots/screenshot_urls.png)
+!["Screenshot of create URL page"](https://github.com/anniekao/tinyapp/blob/master/screenshots/screenshot_createUrl.png)
+!["Screenshot of error page"](https://github.com/anniekao/tinyapp/blob/master/screenshots/screenshot_error.png)
 
 ## Authors
 
