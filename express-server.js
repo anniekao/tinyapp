@@ -58,23 +58,17 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.userId;
   const urls = urlsForUser(urlsDatabase, userId);
-  console.log(Object.keys(urls).includes(req.params.shortURL));
-  if (userId) {
-    if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL)) {
-      let templateVars = {
-        shortURL: req.params.shortURL,
-        longURL: urlsDatabase[req.params.shortURL].longURL,
-        user: usersDatabase[req.session.userId],
-        date: urlsDatabase[req.params.shortURL].date,
-        clicks: urlsDatabase[req.params.shortURL].clicks
-      };
-      res.render("pages/urls_show", templateVars);
-    } else if (urlsDatabase[req.params.shortURL] && Object.keys(urls).includes(req.params.shortURL) === false) {
-      const user = usersDatabase[req.session.userId];
-      res.status(403);
-      res.render("pages/urls_err", { user, title: "403: Forbidden" });
-    }
-  } else if (!userId && urlsDatabase[req.params.shortURL]) {
+
+  if (Object.keys(urls).includes(req.params.shortURL)) {
+    let templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlsDatabase[req.params.shortURL].longURL,
+      user: usersDatabase[req.session.userId],
+      date: urlsDatabase[req.params.shortURL].date,
+      clicks: urlsDatabase[req.params.shortURL].clicks
+    };
+    res.render("pages/urls_show", templateVars);
+  } else if (urlsDatabase[req.params.shortURL]) {
     const user = usersDatabase[req.session.userId];
     res.status(403);
     res.render("pages/urls_err", { user, title: "403: Forbidden" });
