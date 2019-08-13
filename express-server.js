@@ -160,7 +160,7 @@ app.post("/register", (req, res) => {
   res.redirect('/urls');
 });
 
-<!-- --> 
+// PUT and DELETE routers using method override
 app.put("/urls/:shortURL/", (req, res) => {
   const userId = req.session.userId;
   const urls = urlsForUser(urlsDatabase, userId);
