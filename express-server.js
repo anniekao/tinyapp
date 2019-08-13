@@ -127,7 +127,7 @@ app.post("/login", (req, res) => {
   const passwordIsCorrect = bcrypt.compareSync(req.body.password, user.password);
 
   if (userExists && passwordIsCorrect) {
-    req.session.userId = user.userId;
+    req.session.userId = userExists.userId;
     res.redirect("/urls");
   } else {
     const user = usersDatabase[req.session.userId];
