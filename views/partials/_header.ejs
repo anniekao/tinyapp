@@ -1,4 +1,6 @@
 <header>
+  
+  <!-- Depending on if the user is logged in, the logo will link to the front page or to the user's list of tiny urls -->
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <div class="header">
     <% if (user) { %>
@@ -8,6 +10,7 @@
     <% } %>
     </div>
    
+    <!-- Renders the nav bar and shows the user's email depending on login status -->
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="nav navbar-nav mr-auto">
         <a class="nav-item nav-link" href="/urls" style="font-family: 'Arapey', serif; font-size:20px; color:white">My URLs</a>

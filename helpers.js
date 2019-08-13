@@ -1,6 +1,9 @@
+<!--HELPER FUNCTIONS --> 
+
 const checkURL = (url) => {
   let splitURL = url.split("//");
 
+  // Returns undefined if url is empty, other appends http:// to the url
   if (url === "") {
     return undefined;
   } else if (splitURL.length === 1) {
@@ -10,6 +13,8 @@ const checkURL = (url) => {
   }
 };
 
+
+// Returns a user object according to the associated object found in the database
 const getUserByEmail = (usersDb, email) => {
   for (let user in usersDb) {
     if (usersDb[user].email === email) {

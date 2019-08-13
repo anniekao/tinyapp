@@ -47,6 +47,7 @@
       <tbody>
         <% for(let url in urls) { %>
           <tr>
+            <!-- Text box with button to copy the short url to the clipboard -->
             <td>
               <input type="text" class="ml-3 mr-3" id="myShortUrl" value="localhost:8000/u/<%= url %>">
               <button class="btn btn-primary" onclick="copyURL()">Copy URL</button>
