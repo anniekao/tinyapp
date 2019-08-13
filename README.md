@@ -4,7 +4,7 @@ TinyApp is a clone of other popular URL-shortening websites such as bit.ly or ow
 
 ## Getting Started
 
-Run ```npm install``` and then ```npm start```. TinyApp will be running on ```localhost:8000```.
+``git clone`` this project to your local computer, then ``cd tinyapp``. From there run ```npm install``` and then ```npm start```. TinyApp will be running on ``port:8000``, so you can access the website by typing ``localhost:8000`` into your browser. Have fun!
 
 ## Running the tests
 
